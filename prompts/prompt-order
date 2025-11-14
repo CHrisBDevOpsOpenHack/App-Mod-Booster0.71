@@ -4,6 +4,7 @@ prompt-006-baseline-script-instruction,
 prompt-001-create-app-service,
 prompt-004-create-app-code,
 prompt-005-deploy-app-code,
-prompt-007-add-api-code
+prompt-007-add-api-code,
+prompt-008-use-existing-db
 
 If the agent cant find the exact named matching file it shuld not try to make up any text or code and skip to the next one
