@@ -1,0 +1,9 @@
+make sure the chatui observes function calling so that users can interact with the database in the chat ui. You might consider this type of code:
+
+var options = new ChatCompletionOptions
+{
+    Tools = { 
+        ChatTool.CreateFunctionTool("get_something", "Retrieves something from database"),
+        ChatTool.CreateFunctionTool("create_something", "Creates something in database")
+    }
+};
