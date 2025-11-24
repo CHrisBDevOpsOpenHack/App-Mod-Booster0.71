@@ -1,0 +1,11 @@
+Make sure to add the AZURE_CLIENT_ID environment variable to the App Service configuration:
+
+
+az webapp config appsettings set \  --name app-expensemgmt-gxhhiip6yw7iw \  --resource-group rg-expensemgmt-demo \  --settings "AZURE_CLIENT_ID=976d9ad4-1e44-4efa-837a-5cd714ae4a8d"
+This was needed because:
+
+The App Service uses a user-assigned managed identity (not system-assigned)
+The DefaultAzureCredential in the code needs to know which managed identity to use when there are multiple identities
+Setting AZURE_CLIENT_ID tells DefaultAzureCredential to use the specific managed identity with that client ID
+This allows the ChatService to authenticate with Azure OpenAI using the managed identity
+Without this setting, you got the error: "Unable to load the proper Managed Identity" because DefaultAzureCredential couldn't determine which identity to use.
