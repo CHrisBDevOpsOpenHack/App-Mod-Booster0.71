@@ -23,9 +23,9 @@ $gitRemote = git remote get-url origin
 $GITHUB_REPO = $gitRemote -replace '^https://github.com/', '' -replace '\.git$', ''
 
 # Paste your values here:
-$ClientId = "2c55118c-c315-4074-a250-cfe8b3129123"
-$TenantId = "95fdb808-f6f3-4abc-9cb2-8a86090ea39a"
-$SubscriptionId = "bf0ff2fe-5503-48b0-8b52-cd0e67aa8fd8"
+$ClientId = "2c55118c-c315-4074-a250-xxxx"
+$TenantId = "95fdb808-f6f3-4abc-9cb2-xxxx"
+$SubscriptionId = "bf0ff2fe-5503-48b0-8b52-xxxx"
 
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host "Add GitHub Secrets" -ForegroundColor Cyan
