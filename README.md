@@ -7,3 +7,5 @@ A project to show how GitHub coding agent can turn screenshots of legacy apps in
 2. Clone repo when code is generated locally and open VS Code
 3. In terminal AZ LOGIN > Set a subscription context
 4. Run the deploy.sh file (ensuring the settings in the bicep files are what you want - it will have RG name, SKU, UKSOUTH etc already set)
+
+NEW FEATURE
