@@ -25,7 +25,6 @@ public class ExpenseService : IExpenseService
 {
     private readonly string _connectionString;
     private readonly ILogger<ExpenseService> _logger;
-    private bool _databaseAvailable = true;
 
     public ExpenseService(IConfiguration configuration, ILogger<ExpenseService> logger)
     {
@@ -58,13 +57,11 @@ public class ExpenseService : IExpenseService
                 expenses.Add(MapExpenseFromReader(reader));
             }
 
-            _databaseAvailable = true;
             return expenses;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving expenses from database");
-            _databaseAvailable = false;
             return GetDummyExpenses();
         }
     }
@@ -87,13 +84,11 @@ public class ExpenseService : IExpenseService
                 expenses.Add(MapExpenseFromReader(reader));
             }
 
-            _databaseAvailable = true;
             return expenses;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving expenses by status from database");
-            _databaseAvailable = false;
             return GetDummyExpenses().Where(e => e.StatusName == statusName);
         }
     }
@@ -112,7 +107,6 @@ public class ExpenseService : IExpenseService
             using var reader = await command.ExecuteReaderAsync();
             if (await reader.ReadAsync())
             {
-                _databaseAvailable = true;
                 return MapExpenseFromReader(reader);
             }
 
@@ -121,7 +115,6 @@ public class ExpenseService : IExpenseService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving expense by ID from database");
-            _databaseAvailable = false;
             return GetDummyExpenses().FirstOrDefault(e => e.ExpenseId == expenseId);
         }
     }
@@ -148,7 +141,6 @@ public class ExpenseService : IExpenseService
             using var reader = await command.ExecuteReaderAsync();
             if (await reader.ReadAsync())
             {
-                _databaseAvailable = true;
                 return MapExpenseFromReader(reader);
             }
 
@@ -157,7 +149,6 @@ public class ExpenseService : IExpenseService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating expense in database");
-            _databaseAvailable = false;
             throw;
         }
     }
@@ -183,7 +174,6 @@ public class ExpenseService : IExpenseService
             using var reader = await command.ExecuteReaderAsync();
             if (await reader.ReadAsync())
             {
-                _databaseAvailable = true;
                 return MapExpenseFromReader(reader);
             }
 
@@ -192,7 +182,6 @@ public class ExpenseService : IExpenseService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating expense in database");
-            _databaseAvailable = false;
             throw;
         }
     }
@@ -211,7 +200,6 @@ public class ExpenseService : IExpenseService
             using var reader = await command.ExecuteReaderAsync();
             if (await reader.ReadAsync())
             {
-                _databaseAvailable = true;
                 return MapExpenseFromReader(reader);
             }
 
@@ -220,7 +208,6 @@ public class ExpenseService : IExpenseService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error submitting expense in database");
-            _databaseAvailable = false;
             throw;
         }
     }
@@ -240,7 +227,6 @@ public class ExpenseService : IExpenseService
             using var reader = await command.ExecuteReaderAsync();
             if (await reader.ReadAsync())
             {
-                _databaseAvailable = true;
                 return MapExpenseFromReader(reader);
             }
 
@@ -249,7 +235,6 @@ public class ExpenseService : IExpenseService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error approving expense in database");
-            _databaseAvailable = false;
             throw;
         }
     }
@@ -269,7 +254,6 @@ public class ExpenseService : IExpenseService
             using var reader = await command.ExecuteReaderAsync();
             if (await reader.ReadAsync())
             {
-                _databaseAvailable = true;
                 return MapExpenseFromReader(reader);
             }
 
@@ -278,7 +262,6 @@ public class ExpenseService : IExpenseService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error rejecting expense in database");
-            _databaseAvailable = false;
             throw;
         }
     }
@@ -301,13 +284,11 @@ public class ExpenseService : IExpenseService
                 expenses.Add(MapExpenseFromReader(reader));
             }
 
-            _databaseAvailable = true;
             return expenses;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error searching expenses in database");
-            _databaseAvailable = false;
             return GetDummyExpenses().Where(e => 
                 e.Description?.Contains(filterText, StringComparison.OrdinalIgnoreCase) == true ||
                 e.CategoryName?.Contains(filterText, StringComparison.OrdinalIgnoreCase) == true);
@@ -326,13 +307,11 @@ public class ExpenseService : IExpenseService
             command.Parameters.AddWithValue("@ExpenseId", expenseId);
 
             var result = await command.ExecuteScalarAsync();
-            _databaseAvailable = true;
             return Convert.ToInt32(result);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting expense from database");
-            _databaseAvailable = false;
             throw;
         }
     }
@@ -359,13 +338,11 @@ public class ExpenseService : IExpenseService
                 });
             }
 
-            _databaseAvailable = true;
             return categories;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving categories from database");
-            _databaseAvailable = false;
             return GetDummyCategories();
         }
     }
@@ -396,13 +373,11 @@ public class ExpenseService : IExpenseService
                 });
             }
 
-            _databaseAvailable = true;
             return users;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving users from database");
-            _databaseAvailable = false;
             return GetDummyUsers();
         }
     }
@@ -428,13 +403,11 @@ public class ExpenseService : IExpenseService
                 });
             }
 
-            _databaseAvailable = true;
             return statuses;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving statuses from database");
-            _databaseAvailable = false;
             return GetDummyStatuses();
         }
     }
