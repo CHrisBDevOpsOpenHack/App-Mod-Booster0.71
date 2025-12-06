@@ -1,0 +1,69 @@
+@page
+@model AddExpenseModel
+@{
+    ViewData["Title"] = "Add Expense";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2>Add Expense</h2>
+            </div>
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                {
+                    <div class="alert alert-success alert-dismissible fade show">
+                        @Model.SuccessMessage
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        @Model.ErrorMessage
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label asp-for="ExpenseRequest.Amount" class="form-label">Amount (£):</label>
+                        <input asp-for="ExpenseRequest.Amount" class="form-control" type="number" step="0.01" required />
+                        <span asp-validation-for="ExpenseRequest.Amount" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ExpenseRequest.ExpenseDate" class="form-label">Date:</label>
+                        <input asp-for="ExpenseRequest.ExpenseDate" class="form-control" type="date" required />
+                        <span asp-validation-for="ExpenseRequest.ExpenseDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ExpenseRequest.CategoryId" class="form-label">Category:</label>
+                        <select asp-for="ExpenseRequest.CategoryId" asp-items="Model.Categories" class="form-select" required>
+                            <option value="">-- Select Category --</option>
+                        </select>
+                        <span asp-validation-for="ExpenseRequest.CategoryId" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ExpenseRequest.Description" class="form-label">Description:</label>
+                        <textarea asp-for="ExpenseRequest.Description" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="ExpenseRequest.Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+                        <a asp-page="/Index" class="btn btn-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

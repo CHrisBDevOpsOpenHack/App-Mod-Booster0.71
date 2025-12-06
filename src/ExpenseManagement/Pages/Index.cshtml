@@ -1,0 +1,91 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong>⚠️ Database Connection Issue</strong>
+        <p>@Model.ErrorMessage</p>
+        <p><small>Common causes:</small></p>
+        <ul>
+            <li>Missing AZURE_CLIENT_ID environment variable</li>
+            <li>Managed identity not granted database permissions</li>
+            <li>Connection string incorrectly configured</li>
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="text-center mb-4">
+    <h1 class="display-4">Expense Management System</h1>
+    <p class="lead">Track and manage your business expenses efficiently</p>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Expenses</h5>
+                <p class="card-text display-4">@Model.TotalExpenses</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Pending Approval</h5>
+                <p class="card-text display-4">@Model.PendingExpenses</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Approved</h5>
+                <p class="card-text display-4">@Model.ApprovedExpenses</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">📝 Add Expense</h5>
+                <p class="card-text">Submit a new expense for reimbursement</p>
+                <a asp-page="/AddExpense" class="btn btn-primary">Add Expense</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">📊 View Expenses</h5>
+                <p class="card-text">View and search all your expenses</p>
+                <a asp-page="/Expenses" class="btn btn-primary">View Expenses</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">✅ Approve Expenses</h5>
+                <p class="card-text">Review and approve pending expenses</p>
+                <a asp-page="/ApproveExpenses" class="btn btn-primary">Approve Expenses</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">📚 API Documentation</h5>
+                <p class="card-text">Explore the REST API with Swagger</p>
+                <a href="/swagger" class="btn btn-primary">View API Docs</a>
+            </div>
+        </div>
+    </div>
+</div>
