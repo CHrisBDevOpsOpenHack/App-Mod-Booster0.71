@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "16160170470062742479"
+      "templateHash": "6514926960921420131"
     }
   },
   "parameters": {
@@ -972,21 +972,21 @@
       "metadata": {
         "description": "The OpenAI endpoint (empty if GenAI not deployed)"
       },
-      "value": "[if(parameters('deployGenAI'), reference(resourceId('Microsoft.Resources/deployments', 'genai'), '2025-04-01').outputs.openAIEndpoint.value, '')]"
+      "value": "[if(and(parameters('deployGenAI'), not(equals(reference(resourceId('Microsoft.Resources/deployments', 'genai'), '2025-04-01'), null()))), reference(resourceId('Microsoft.Resources/deployments', 'genai'), '2025-04-01').outputs.openAIEndpoint.value, '')]"
     },
     "openAIModelName": {
       "type": "string",
       "metadata": {
         "description": "The OpenAI model deployment name (empty if GenAI not deployed)"
       },
-      "value": "[if(parameters('deployGenAI'), reference(resourceId('Microsoft.Resources/deployments', 'genai'), '2025-04-01').outputs.openAIModelName.value, '')]"
+      "value": "[if(and(parameters('deployGenAI'), not(equals(reference(resourceId('Microsoft.Resources/deployments', 'genai'), '2025-04-01'), null()))), reference(resourceId('Microsoft.Resources/deployments', 'genai'), '2025-04-01').outputs.openAIModelName.value, '')]"
     },
     "searchServiceEndpoint": {
       "type": "string",
       "metadata": {
         "description": "The Search Service endpoint (empty if GenAI not deployed)"
       },
-      "value": "[if(parameters('deployGenAI'), reference(resourceId('Microsoft.Resources/deployments', 'genai'), '2025-04-01').outputs.searchServiceEndpoint.value, '')]"
+      "value": "[if(and(parameters('deployGenAI'), not(equals(reference(resourceId('Microsoft.Resources/deployments', 'genai'), '2025-04-01'), null()))), reference(resourceId('Microsoft.Resources/deployments', 'genai'), '2025-04-01').outputs.searchServiceEndpoint.value, '')]"
     }
   }
 }
