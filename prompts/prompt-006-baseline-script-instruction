@@ -41,6 +41,22 @@ For convenience, also create a `deploy-all.ps1` script in the repository root th
 - Use `.bicepparam` files for Bicep parameters (not inline parameters or legacy parameters.json)
 - Provide clear variable setup instructions at the top of each README
 
+### PowerShell Best Practices
+
+When writing PowerShell scripts that call other scripts with parameters, always use hashtable splatting rather than building an array of argument strings. This ensures parameters are passed correctly as named parameters.
+
+The correct approach looks like this:
+
+```powershell
+$args = @{
+    ResourceGroup = $ResourceGroup
+    Location = $Location
+}
+& $scriptPath @args
+```
+
+Avoid building parameters as an array of strings like `@("-ResourceGroup", $value)` - this causes "positional parameter cannot be found" errors.
+
 Refer to the screenshots in the repository and the database schema to ensure all APIs and functionality match the original application.
 
 See also: prompt-027-deployment-script for infrastructure script details, prompt-005-deploy-app-code for application deployment.

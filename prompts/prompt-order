@@ -69,6 +69,24 @@ Do a quick check to make sure these key files exist:
 - deploy-app/deploy.ps1
 - deploy-all.ps1
 
+Also verify the deploy-all.ps1 script uses hashtable splatting (not array splatting) when calling child scripts. See prompt-029-unified-deployment-script for the correct pattern.
+
+## Common Pitfalls to Avoid
+
+These issues have caused problems in past builds - please avoid them:
+
+1. **PowerShell parameter passing**: When one script calls another with parameters, use hashtable splatting (`@{ Key = Value }`) not array splatting (`@("-Key", Value)`). Array splatting causes "positional parameter cannot be found" errors.
+
+2. **Missing Chat page**: The Chat.cshtml page must always be created, even without GenAI. It should gracefully show "not configured" instead of being absent.
+
+3. **Bicep utcNow() usage**: Never use `utcNow()` in variable declarations - it's only allowed as a parameter default value.
+
+4. **SQL connection string format**: Must include `Authentication=Active Directory Managed Identity;User Id={clientId}` - don't use `Trusted_Connection` or Windows auth.
+
+5. **Resource naming**: Azure OpenAI and AI Search names must be lowercase. Apply `toLower()` when using `uniqueString()`.
+
+6. **Sqlcmd piping**: Never pipe SQL directly to sqlcmd - always write to a temp file first, then use `-i` to execute it.
+
 ## One More Thing
 
 If a prompt file can't be found with the exact name listed, just skip it and move on to the next one - don't try to guess what it should contain.

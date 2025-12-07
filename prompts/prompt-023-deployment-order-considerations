@@ -86,3 +86,34 @@ Key considerations for Bicep templates:
 
 - Do not configure diagnostic settings at the SQL Server level as categories like SQLSecurityAuditEvents are not supported - only configure diagnostics at the database level
 - App Service diagnostics should be deployed in a separate module after the App Service exists to avoid circular dependencies
+
+## Quick Reference: Patterns That Work
+
+Here's a summary of the correct patterns to use throughout the project:
+
+**PowerShell splatting** - Use hashtables, not arrays:
+```powershell
+# Correct
+$args = @{ ResourceGroup = $rg; Location = $loc }
+& $script @args
+
+# Wrong - causes parameter binding errors
+$args = @("-ResourceGroup", $rg, "-Location", $loc)
+```
+
+**Bicep unique names** - Apply toLower for services requiring lowercase:
+```bicep
+var uniqueSuffix = uniqueString(resourceGroup().id)
+var openAIName = toLower('oai-${baseName}-${uniqueSuffix}')
+```
+
+**SQL connection string** - Use Managed Identity format:
+```
+Server=tcp:{server}.database.windows.net,1433;Initial Catalog={db};Encrypt=True;Authentication=Active Directory Managed Identity;User Id={clientId};
+```
+
+**Sqlcmd execution** - Write to file first:
+```powershell
+$sql | Out-File -Path $tempFile -Encoding UTF8
+sqlcmd -S $server -d $db -i $tempFile
+```
