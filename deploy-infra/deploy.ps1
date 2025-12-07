@@ -317,7 +317,17 @@ az webapp config connection-string set `
     --settings DefaultConnection="$connectionString" `
     --output none
 
-Write-Host "✓ Connection string configured" -ForegroundColor Green
+# Set AZURE_CLIENT_ID and ManagedIdentityClientId for managed identity authentication
+az webapp config appsettings set `
+    --resource-group $ResourceGroup `
+    --name $webAppName `
+    --settings `
+        "AZURE_CLIENT_ID=$managedIdentityClientId" `
+        "ManagedIdentityClientId=$managedIdentityClientId" `
+        "APPLICATIONINSIGHTS_CONNECTION_STRING=$appInsightsConnectionString" `
+    --output none
+
+Write-Host "✓ Connection string and managed identity settings configured" -ForegroundColor Green
 
 # Configure GenAI settings if deployed
 if ($DeployGenAI) {
@@ -331,9 +341,9 @@ if ($DeployGenAI) {
         --resource-group $ResourceGroup `
         --name $webAppName `
         --settings `
-            "OpenAI__Endpoint=$openAIEndpoint" `
-            "OpenAI__DeploymentName=$openAIModelName" `
-            "AzureSearch__Endpoint=$searchEndpoint" `
+            "GenAISettings__OpenAIEndpoint=$openAIEndpoint" `
+            "GenAISettings__OpenAIModelName=$openAIModelName" `
+            "GenAISettings__SearchEndpoint=$searchEndpoint" `
         --output none
     
     Write-Host "✓ GenAI settings configured" -ForegroundColor Green
