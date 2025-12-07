@@ -94,6 +94,7 @@ The script automatically reads the deployment context from the infrastructure de
 
 Open your browser to:
 - **Main App**: `https://your-app-name.azurewebsites.net/Index`
+- **AI Chat**: `https://your-app-name.azurewebsites.net/Chat` (if GenAI deployed)
 - **API Docs**: `https://your-app-name.azurewebsites.net/swagger`
 
 ## 📖 Documentation
@@ -124,6 +125,18 @@ Open your browser to:
 1. Navigate to **Approve Expenses**
 2. See all submitted expenses pending approval
 3. Click **Approve** or **Reject** for each expense
+
+### AI Chat Assistant (Optional - requires GenAI deployment)
+
+1. Navigate to **AI Chat**
+2. Type natural language questions or commands like:
+   - "Show me all submitted expenses"
+   - "Create an expense for £50 for lunch today"
+   - "What categories are available?"
+   - "Approve expense #5"
+3. The AI assistant will execute operations and respond with formatted results
+
+**Note**: The chat feature requires Azure OpenAI to be deployed. Use the `-DeployGenAI` switch during infrastructure deployment to enable this feature.
 
 ### API Access
 
