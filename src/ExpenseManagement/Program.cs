@@ -13,6 +13,9 @@ builder.Services.AddApplicationInsightsTelemetry();
 // Register expense service
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 
+// Register chat service
+builder.Services.AddScoped<IChatService, ChatService>();
+
 // Add Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
