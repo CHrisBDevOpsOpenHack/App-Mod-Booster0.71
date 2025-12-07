@@ -9,6 +9,9 @@ builder.Services.AddControllers();
 // Register ExpenseService
 builder.Services.AddScoped<ExpenseService>();
 
+// Register ChatService (for GenAI functionality)
+builder.Services.AddScoped<ChatService>();
+
 // Add Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

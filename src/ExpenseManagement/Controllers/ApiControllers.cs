@@ -249,3 +249,76 @@ public class UsersController : ControllerBase
 }
 
 public record UpdateStatusRequest(string StatusName, int? ReviewedBy = null);
+
+[ApiController]
+[Route("api/[controller]")]
+public class ChatController : ControllerBase
+{
+    private readonly ChatService _chatService;
+    private readonly ILogger<ChatController> _logger;
+
+    public ChatController(ChatService chatService, ILogger<ChatController> logger)
+    {
+        _chatService = chatService;
+        _logger = logger;
+    }
+
+    /// <summary>
+    /// Send a message to the AI chat assistant
+    /// </summary>
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ChatResponse>> SendMessage([FromBody] ChatRequest request)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(request.Message))
+            {
+                return BadRequest(new { error = "Message cannot be empty" });
+            }
+
+            if (!_chatService.IsConfigured())
+            {
+                return BadRequest(new { error = "Azure OpenAI is not configured. Deploy with -DeployGenAI switch." });
+            }
+
+            // Convert conversation history to ChatMessage format
+            var conversationHistory = new List<OpenAI.Chat.ChatMessage>();
+            
+            if (request.ConversationHistory != null)
+            {
+                foreach (var msg in request.ConversationHistory)
+                {
+                    if (msg.Role?.ToLower() == "user")
+                    {
+                        conversationHistory.Add(new OpenAI.Chat.UserChatMessage(msg.Content ?? ""));
+                    }
+                    else if (msg.Role?.ToLower() == "assistant")
+                    {
+                        conversationHistory.Add(new OpenAI.Chat.AssistantChatMessage(msg.Content ?? ""));
+                    }
+                }
+            }
+
+            var response = await _chatService.SendMessageAsync(request.Message, conversationHistory);
+
+            return Ok(new ChatResponse(response));
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Chat service not configured");
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing chat message");
+            return StatusCode(500, new { error = "An error occurred while processing your message" });
+        }
+    }
+}
+
+public record ChatRequest(string Message, List<ConversationMessage>? ConversationHistory = null);
+public record ConversationMessage(string? Role, string? Content);
+public record ChatResponse(string Response);
