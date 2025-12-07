@@ -126,6 +126,13 @@ AS
 BEGIN
     SET NOCOUNT ON;
     
+    -- Validate currency code
+    IF @Currency NOT IN ('GBP', 'USD', 'EUR')
+    BEGIN
+        RAISERROR('Invalid currency code. Supported currencies: GBP, USD, EUR', 16, 1);
+        RETURN;
+    END
+    
     DECLARE @ExpenseId INT;
     
     INSERT INTO dbo.Expenses (
@@ -177,7 +184,9 @@ BEGIN
     
     IF @StatusId IS NULL
     BEGIN
-        RAISERROR('Invalid status name', 16, 1);
+        DECLARE @ErrorMessage NVARCHAR(200);
+        SET @ErrorMessage = 'Invalid status name: ' + @StatusName + '. Valid statuses: Draft, Submitted, Approved, Rejected';
+        RAISERROR(@ErrorMessage, 16, 1);
         RETURN;
     END
     
