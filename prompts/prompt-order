@@ -95,13 +95,17 @@ These issues have caused problems in past builds - please avoid them:
 
 10. **C# column count must match stored procedure output**: If a stored procedure returns 3 columns, don't try to read 4. The GetExpenseSummary procedure returns (StatusName, ExpenseCount, TotalAmount) - only 3 columns. If the C# model needs TotalAmountMinor, calculate it from TotalAmount rather than expecting a 4th column.
 
+11. **PowerShell scripts must use $PSScriptRoot for relative paths**: When a script references files (like .deployment-context.json or project paths), use `$PSScriptRoot` to build absolute paths. Scripts called by deploy-all.ps1 run from the repo root, not from their own folder. Check both `./.deployment-context.json` and `../.deployment-context.json` for the context file.
+
 ## Reference the Working Scripts
 
 If you're unsure about the correct implementation pattern for any of these pitfalls, examine the existing scripts in the repository. These files contain working, tested code:
 
 - `deploy-all.ps1` - Shows correct hashtable splatting for script-to-script calls
 - `deploy-infra/deploy.ps1` - Shows correct Azure CLI parameter passing and stderr handling
+- `deploy-app/deploy.ps1` - Shows correct $PSScriptRoot usage for path handling
 - `src/ExpenseManagement/Pages/Chat.cshtml` - Shows graceful degradation when GenAI isn't configured
+- `src/ExpenseManagement/Services/ExpenseService.cs` - Shows correct column mapping from stored procedures
 
 These files are your source of truth. If a prompt seems unclear, check how the pattern is implemented in these reference files.
 

@@ -6,7 +6,7 @@ The script should accept optional parameters for the resource group name and web
 
 The deployment process should:
 
-1. Check for a .deployment-context.json file at the repository root and load values from it if available
+1. Check for a .deployment-context.json file - look in BOTH the current directory (./) AND the parent directory (../) since the script may be called from either the repo root (by deploy-all.ps1) or from within the deploy-app folder directly
 2. Validate that Azure CLI is installed and the user is logged in
 3. Build and publish the .NET application using dotnet publish
 4. Create a deployment zip package with the DLL files at the root level (not in a subdirectory)
@@ -15,6 +15,14 @@ The deployment process should:
 7. Display the application URLs including the /Index page and /swagger endpoint
 
 The zip file structure is critical - Azure App Service expects the DLL files at the root of the zip, not inside a subdirectory like publish/ or app/.
+
+Path handling is also critical - use `$PSScriptRoot` to build paths relative to the script location, not relative to the current working directory. This ensures the script works correctly whether called from the repo root (by deploy-all.ps1) or from within the deploy-app folder:
+
+```powershell
+$scriptDir = $PSScriptRoot
+$repoRoot = Split-Path -Parent $scriptDir
+$projectPath = Join-Path $repoRoot "src/ExpenseManagement/ExpenseManagement.csproj"
+```
 
 When the ConfigureSettings switch is used, the script should configure the connection string and managed identity client ID using values from the deployment context or by querying Azure deployment outputs.
 
