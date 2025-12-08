@@ -91,6 +91,8 @@ These issues have caused problems in past builds - please avoid them:
 
 8. **Sqlcmd piping**: Never pipe SQL directly to sqlcmd - always write to a temp file first, then use `-i` to execute it.
 
+9. **C# column names must match stored procedures exactly**: When mapping SQL results to C# objects, the column names in `reader.GetOrdinal("ColumnName")` must match exactly what the stored procedure returns. For example, if the stored procedure returns `AmountDecimal`, the C# code must use `GetOrdinal("AmountDecimal")` not `GetOrdinal("Amount")`. Mismatches cause "Unable to cast object" or "column not found" errors.
+
 ## Reference the Working Scripts
 
 If you're unsure about the correct implementation pattern for any of these pitfalls, examine the existing scripts in the repository. These files contain working, tested code:

@@ -7,6 +7,13 @@ Key requirements:
 - Use CREATE OR ALTER PROCEDURE syntax so the script can run multiple times without errors
 - Every stored procedure called by the application code must exist in this file
 - The application code should never construct dynamic SQL or access tables directly
+- Column aliases in stored procedures must exactly match the property names expected by the C# code
+
+Column naming alignment is critical:
+
+If a stored procedure returns a calculated column like `CAST(e.AmountMinor / 100.0 AS DECIMAL(10,2)) AS AmountDecimal`, the C# code must use `reader.GetOrdinal("AmountDecimal")` to read it - not a different name like `Amount`. A mismatch causes "Unable to cast object" or "column not found" runtime errors.
+
+Similarly, if the stored procedure returns `reviewer.UserName AS ReviewedByName`, the C# code must use `GetOrdinal("ReviewedByName")` not `GetOrdinal("ReviewerName")`.
 
 The infrastructure deployment script (deploy-infra/deploy.ps1) automatically imports these stored procedures using sqlcmd with Entra ID authentication.
 
