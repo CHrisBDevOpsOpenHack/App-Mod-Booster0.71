@@ -225,9 +225,15 @@ if (-not $SkipDatabaseSetup) {
     # Create managed identity database user
     Write-Host "Creating managed identity database user..." -ForegroundColor Yellow
     
-    # Convert Client ID to SID
-    $guidBytes = [System.Guid]::Parse($managedIdentityClientId).ToByteArray()
-    $sidHex = "0x" + [System.BitConverter]::ToString($guidBytes).Replace("-", "")
+    try {
+        # Convert Client ID to SID
+        $guidBytes = [System.Guid]::Parse($managedIdentityClientId).ToByteArray()
+        $sidHex = "0x" + [System.BitConverter]::ToString($guidBytes).Replace("-", "")
+    }
+    catch {
+        Write-Error "Failed to convert managed identity client ID to SID: $_"
+        exit 1
+    }
     
     $createUserSql = @"
 IF EXISTS (SELECT * FROM sys.database_principals WHERE name = '$managedIdentityName')

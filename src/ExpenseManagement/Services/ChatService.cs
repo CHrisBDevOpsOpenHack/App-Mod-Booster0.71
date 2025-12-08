@@ -43,7 +43,7 @@ public class ChatService
             }
             else
             {
-                _logger.LogInformation("Using DefaultAzureCredential");
+                _logger.LogWarning("ManagedIdentityClientId not configured, falling back to DefaultAzureCredential. This may cause unpredictable behavior in production.");
                 credential = new DefaultAzureCredential();
             }
 

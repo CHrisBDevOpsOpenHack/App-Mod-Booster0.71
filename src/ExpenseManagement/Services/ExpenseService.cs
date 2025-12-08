@@ -150,7 +150,7 @@ public class ExpenseService
             
             command.Parameters.AddWithValue("@UserId", request.UserId);
             command.Parameters.AddWithValue("@CategoryId", request.CategoryId);
-            command.Parameters.AddWithValue("@AmountMinor", (int)(request.Amount * 100));
+            command.Parameters.AddWithValue("@AmountMinor", (int)Math.Round(request.Amount * 100, 0, MidpointRounding.AwayFromZero));
             command.Parameters.AddWithValue("@Currency", request.Currency);
             command.Parameters.AddWithValue("@ExpenseDate", request.ExpenseDate);
             command.Parameters.AddWithValue("@Description", (object?)request.Description ?? DBNull.Value);
