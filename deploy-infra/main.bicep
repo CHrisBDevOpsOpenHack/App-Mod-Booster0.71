@@ -96,9 +96,9 @@ output managedIdentityPrincipalId string = managedIdentity.outputs.managedIdenti
 output appInsightsConnectionString string = monitoring.outputs.appInsightsConnectionString
 output logAnalyticsWorkspaceId string = monitoring.outputs.logAnalyticsWorkspaceId
 
-// Conditional GenAI outputs
-output openAIEndpoint string = deployGenAI ? genAI.outputs.openAIEndpoint : ''
-output openAIModelName string = deployGenAI ? genAI.outputs.openAIModelName : ''
-output openAIName string = deployGenAI ? genAI.outputs.openAIName : ''
-output searchEndpoint string = deployGenAI ? genAI.outputs.searchEndpoint : ''
-output searchName string = deployGenAI ? genAI.outputs.searchName : ''
+// Conditional GenAI outputs using null-safe operators
+output openAIEndpoint string = genAI.?outputs.?openAIEndpoint ?? ''
+output openAIModelName string = genAI.?outputs.?openAIModelName ?? ''
+output openAIName string = genAI.?outputs.?openAIName ?? ''
+output searchEndpoint string = genAI.?outputs.?searchEndpoint ?? ''
+output searchName string = genAI.?outputs.?searchName ?? ''
