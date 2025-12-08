@@ -1,0 +1,17 @@
+@page
+@model ExpenseManagement.Pages.ErrorModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="card">
+    <h1 class="page-title">Error</h1>
+    <p>An error occurred while processing your request.</p>
+
+    @if (Model.ShowRequestId)
+    {
+        <p>
+            <strong>Request ID:</strong> <code>@Model.RequestId</code>
+        </p>
+    }
+</div>

@@ -1,0 +1,158 @@
+@page
+@model ExpenseManagement.Pages.ChatModel
+@{
+    ViewData["Title"] = "AI Chat";
+}
+
+<div class="card">
+    <h1 class="page-title">AI Expense Assistant</h1>
+
+    @if (!Model.IsConfigured)
+    {
+        <div style="background: #fef3c7; color: #92400e; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #f59e0b;">
+            <strong>AI Chat is not available yet.</strong>
+            <p style="margin-top: 0.5rem;">
+                To enable AI features, redeploy the infrastructure using the <code>-DeployGenAI</code> switch:
+            </p>
+            <pre style="background: rgba(0,0,0,0.1); padding: 0.75rem; border-radius: 4px; margin-top: 0.5rem;">.\deploy-infra\deploy.ps1 -ResourceGroup "your-rg" -Location "uksouth" -DeployGenAI</pre>
+        </div>
+    }
+    else
+    {
+        <div id="chat-container" style="background: #f7fafc; border-radius: 8px; padding: 1.5rem; min-height: 400px; max-height: 600px; overflow-y: auto; margin-bottom: 1rem;">
+            <div id="chat-messages">
+                <!-- Messages will appear here -->
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="chat-input" placeholder="Ask about expenses..." 
+                   style="flex: 1; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;"
+                   onkeypress="if(event.key === 'Enter') sendMessage()" />
+            <button onclick="sendMessage()" class="btn btn-primary">Send</button>
+        </div>
+
+        <div style="margin-top: 1rem; color: #718096; font-size: 0.875rem;">
+            <strong>Try asking:</strong>
+            <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                <li>"Show me all submitted expenses"</li>
+                <li>"What's the total of approved expenses?"</li>
+                <li>"Create an expense for £50 for lunch today"</li>
+                <li>"Show me expenses for user 1"</li>
+            </ul>
+        </div>
+    }
+</div>
+
+@if (Model.IsConfigured)
+{
+    <script>
+        let conversationHistory = [];
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatMessage(text) {
+            // Escape HTML first
+            let formatted = escapeHtml(text);
+            
+            // Convert markdown-style bold
+            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // Convert numbered lists
+            formatted = formatted.replace(/^\d+\.\s+(.*)$/gm, '<li>$1</li>');
+            if (formatted.includes('<li>')) {
+                formatted = formatted.replace(/(<li>.*<\/li>)/s, '<ol>$1</ol>');
+            }
+            
+            // Convert bullet points
+            formatted = formatted.replace(/^[\*\-]\s+(.*)$/gm, '<li>$1</li>');
+            if (formatted.includes('<li>') && !formatted.includes('<ol>')) {
+                formatted = formatted.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+            }
+            
+            // Convert line breaks
+            formatted = formatted.replace(/\n/g, '<br/>');
+            
+            return formatted;
+        }
+
+        function addMessage(role, content) {
+            const messagesDiv = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.style.marginBottom = '1rem';
+            messageDiv.style.padding = '1rem';
+            messageDiv.style.borderRadius = '8px';
+            
+            if (role === 'user') {
+                messageDiv.style.background = '#667eea';
+                messageDiv.style.color = 'white';
+                messageDiv.style.marginLeft = '20%';
+            } else {
+                messageDiv.style.background = 'white';
+                messageDiv.style.border = '2px solid #e2e8f0';
+                messageDiv.style.marginRight = '20%';
+            }
+            
+            messageDiv.innerHTML = formatMessage(content);
+            messagesDiv.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            const container = document.getElementById('chat-container');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to UI
+            addMessage('user', message);
+            
+            // Clear input
+            input.value = '';
+            
+            // Add to history
+            conversationHistory.push({ role: 'user', content: message });
+            
+            // Show typing indicator
+            const messagesDiv = document.getElementById('chat-messages');
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.style.color = '#718096';
+            typingDiv.style.fontStyle = 'italic';
+            typingDiv.textContent = 'AI is thinking...';
+            messagesDiv.appendChild(typingDiv);
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        history: conversationHistory
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Remove typing indicator
+                typingDiv.remove();
+                
+                // Add assistant response
+                addMessage('assistant', data.response);
+                conversationHistory.push({ role: 'assistant', content: data.response });
+            } catch (error) {
+                typingDiv.remove();
+                addMessage('assistant', 'Sorry, there was an error processing your request: ' + error.message);
+            }
+        }
+    </script>
+}
