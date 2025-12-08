@@ -1,0 +1,69 @@
+@page
+@model ExpenseManagement.Pages.Expenses.ApprovalsModel
+@{
+    ViewData["Title"] = "Approvals";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Approve Expenses</h2>
+    <a class="btn btn-outline-secondary" asp-page="/Expenses/List">Back to list</a>
+</div>
+
+<form method="post" class="mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label asp-for="ReviewerId" class="form-label">Reviewer Id</label>
+            <input asp-for="ReviewerId" class="form-control" type="number" min="1" />
+        </div>
+    </div>
+</form>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        @if (Model.Pending.Any())
+        {
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th>Submitted</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var expense in Model.Pending)
+                        {
+                            <tr>
+                                <td>#@expense.ExpenseId</td>
+                                <td>@expense.Description</td>
+                                <td>@expense.CategoryName</td>
+                                <td>£@expense.Amount</td>
+                                <td>@expense.SubmittedAt?.ToShortDateString()</td>
+                                <td class="text-end">
+                                    <form method="post" asp-page-handler="Approve" class="d-inline">
+                                        <input type="hidden" name="expenseId" value="@expense.ExpenseId" />
+                                        <input type="hidden" name="reviewerId" value="@Model.ReviewerId" />
+                                        <button class="btn btn-success btn-sm">Approve</button>
+                                    </form>
+                                    <form method="post" asp-page-handler="Reject" class="d-inline ms-1">
+                                        <input type="hidden" name="expenseId" value="@expense.ExpenseId" />
+                                        <input type="hidden" name="reviewerId" value="@Model.ReviewerId" />
+                                        <button class="btn btn-outline-danger btn-sm">Reject</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-muted">No submitted expenses to review.</div>
+        }
+    </div>
+</div>

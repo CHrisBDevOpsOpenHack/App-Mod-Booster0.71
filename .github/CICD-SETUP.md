@@ -1,66 +1,23 @@
-# CI/CD Setup Guide
+## CI/CD Setup (GitHub Actions with OIDC)
 
-This guide explains how to set up automated deployments using GitHub Actions with OIDC authentication.
+1. Create a service principal with OIDC federation:
+   ```powershell
+   az ad sp create-for-rbac --name "app-mod-expense-sp" --role Contributor --scopes /subscriptions/<subscription-id>
+   ```
+2. Grant **User Access Administrator** at the subscription level so role assignments work:
+   ```powershell
+   az role assignment create --assignee <sp-app-id> --role "User Access Administrator" --scope /subscriptions/<subscription-id>
+   ```
+3. Add federated credentials for your repository:
+   - Audience: `api://AzureADTokenExchange`
+   - Subject identifier: `repo:<org>/<repo>:ref:refs/heads/main`
+4. Configure GitHub repository variables (Actions → Variables):
+   - `AZURE_CLIENT_ID`
+   - `AZURE_TENANT_ID`
+   - `AZURE_SUBSCRIPTION_ID`
+5. Trigger the workflow manually from **Actions → Deploy to Azure**.
 
-## Overview
-
-The GitHub Actions workflow (`.github/workflows/deploy.yml`) automates deployment of both infrastructure and application code to Azure using OpenID Connect (OIDC) for secure, passwordless authentication.
-
-## Prerequisites
-
-- Azure subscription with Contributor + User Access Administrator roles
-- GitHub repository
-- PowerShell 7+ for setup commands
-
-## Quick Setup
-
-### 1. Create Service Principal
-
-```powershell
-$subscriptionId = "your-subscription-id"
-$appName = "gh-expensemgmt-deploy"
-$repoOwner = "your-github-org"
-$repoName = "your-repo-name"
-
-az login
-az account set --subscription $subscriptionId
-
-$sp = az ad sp create-for-rbac --name $appName --role Contributor --scopes "/subscriptions/$subscriptionId" | ConvertFrom-Json
-$clientId = $sp.appId
-```
-
-### 2. Assign User Access Administrator Role
-
-```powershell
-az role assignment create --assignee $clientId --role "User Access Administrator" --scope "/subscriptions/$subscriptionId"
-```
-
-### 3. Create Federated Credentials
-
-```powershell
-az ad app federated-credential create --id $clientId --parameters '{
-  "name": "github-main",
-  "issuer": "https://token.actions.githubusercontent.com",
-  "subject": "repo:'$repoOwner'/'$repoName':ref:refs/heads/main",
-  "audiences": ["api://AzureADTokenExchange"]
-}'
-```
-
-### 4. Configure GitHub
-
-In your repository: Settings → Secrets and variables → Actions → Variables
-
-Create these variables:
-- `AZURE_CLIENT_ID`: Service Principal Client ID
-- `AZURE_TENANT_ID`: Your Azure Tenant ID
-- `AZURE_SUBSCRIPTION_ID`: Your Subscription ID
-
-### 5. Create Environment
-
-Settings → Environments → New environment → Name it `production`
-
-## Running Deployments
-
-Actions → Deploy to Azure → Run workflow
-
-See full documentation for troubleshooting and advanced configuration.
+Notes:
+- The workflow installs go-sqlcmd from GitHub releases (Ubuntu 24.04 compatible).
+- It calls the same PowerShell scripts used locally: `deploy-infra/deploy.ps1` then `deploy-app/deploy.ps1`.
+- A 60-second delay between infra and app deploy avoids SCM restart conflicts.
