@@ -1,0 +1,67 @@
+@page
+@model ExpenseManagement.Pages.Expenses.ListModel
+@{
+    ViewData["Title"] = "Expenses";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Expenses</h2>
+    <a class="btn btn-primary" asp-page="/Expenses/Add">Add Expense</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3">
+        <input type="text" name="search" value="@Model.Search" class="form-control" placeholder="Search" />
+    </div>
+    <div class="col-md-3">
+        <select name="status" class="form-select">
+            <option value="">All statuses</option>
+            @foreach (var status in Model.Statuses)
+            {
+                <option value="@status.StatusName" selected="@(status.StatusName == Model.Status)">@status.StatusName</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-secondary w-100">Filter</button>
+    </div>
+</form>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        @if (Model.Expenses.Any())
+        {
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var expense in Model.Expenses)
+                        {
+                            <tr>
+                                <td>#@expense.ExpenseId</td>
+                                <td>@expense.Description</td>
+                                <td>@expense.CategoryName</td>
+                                <td><span class="badge bg-light text-dark">@expense.StatusName</span></td>
+                                <td>£@expense.Amount</td>
+                                <td>@expense.ExpenseDate.ToShortDateString()</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-muted">No expenses found.</div>
+        }
+    </div>
+</div>
