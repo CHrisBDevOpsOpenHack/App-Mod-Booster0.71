@@ -32,6 +32,11 @@ bld/
 deploy-app/app.zip
 *.zip
 
+# Bicep compiled output
+*.json
+!appsettings*.json
+!package*.json
+
 # .NET
 project.lock.json
 project.fragment.lock.json
