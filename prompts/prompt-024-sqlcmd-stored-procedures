@@ -22,6 +22,10 @@ Quick reference for this application's column mappings:
 | AmountMinor | AmountMinor | INT in database |
 | AmountDecimal | Amount | Calculated DECIMAL(10,2) |
 | ReviewedByName | ReviewerName | Aliased from reviewer.UserName |
+| ExpenseCount | Count | In GetExpenseSummary |
+| TotalAmount | TotalAmount | DECIMAL in GetExpenseSummary (not INT!) |
+
+Important: The GetExpenseSummary stored procedure returns only 3 columns (StatusName, ExpenseCount, TotalAmount), not 4. If the C# model has a TotalAmountMinor property, calculate it from TotalAmount (multiply by 100) rather than expecting the stored procedure to return it.
 
 The infrastructure deployment script (deploy-infra/deploy.ps1) automatically imports these stored procedures using sqlcmd with Entra ID authentication.
 
