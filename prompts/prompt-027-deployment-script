@@ -65,6 +65,20 @@ Critical implementation details:
    az deployment group create --parameters $params  # This fails!
    ```
 
+7. When capturing Azure CLI output for JSON parsing, redirect stderr to null (`2>$null`) rather than merging it with stdout (`2>&1`). Bicep warnings go to stderr and will corrupt the JSON output if mixed:
+
+   Correct approach:
+   ```powershell
+   $output = az deployment group create --output json 2>$null
+   $deployment = $output | ConvertFrom-Json
+   ```
+
+   Wrong approach (causes "Conversion from JSON failed" when Bicep has warnings):
+   ```powershell
+   $output = az deployment group create --output json 2>&1
+   $deployment = $output | ConvertFrom-Json  # Fails if warnings present!
+   ```
+
 See also: prompt-016-sqlcmd-for-sql for detailed sqlcmd usage, prompt-028-github-actions-cicd for CI/CD considerations.
 
 Prerequisites: Azure CLI, go-sqlcmd (install with winget install sqlcmd), and PowerShell 7+ recommended.

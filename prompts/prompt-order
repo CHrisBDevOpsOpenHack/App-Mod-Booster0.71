@@ -79,15 +79,17 @@ These issues have caused problems in past builds - please avoid them:
 
 2. **Azure CLI parameter passing**: When calling `az deployment group create --parameters`, you cannot pass a PowerShell hashtable. Use inline `key=value` pairs instead. Passing a hashtable causes "Unable to parse parameter: System.Collections.Hashtable" errors.
 
-3. **Missing Chat page**: The Chat.cshtml page must always be created, even without GenAI. It should gracefully show "not configured" instead of being absent.
+3. **Azure CLI JSON output with warnings**: When capturing Azure CLI output for JSON parsing, use `2>$null` to discard stderr, not `2>&1` to merge it. Bicep warnings go to stderr and corrupt the JSON, causing "Conversion from JSON failed" errors.
 
-4. **Bicep utcNow() usage**: Never use `utcNow()` in variable declarations - it's only allowed as a parameter default value.
+4. **Missing Chat page**: The Chat.cshtml page must always be created, even without GenAI. It should gracefully show "not configured" instead of being absent.
 
-5. **SQL connection string format**: Must include `Authentication=Active Directory Managed Identity;User Id={clientId}` - don't use `Trusted_Connection` or Windows auth.
+5. **Bicep utcNow() usage**: Never use `utcNow()` in variable declarations - it's only allowed as a parameter default value.
 
-6. **Resource naming**: Azure OpenAI and AI Search names must be lowercase. Apply `toLower()` when using `uniqueString()`.
+6. **SQL connection string format**: Must include `Authentication=Active Directory Managed Identity;User Id={clientId}` - don't use `Trusted_Connection` or Windows auth.
 
-7. **Sqlcmd piping**: Never pipe SQL directly to sqlcmd - always write to a temp file first, then use `-i` to execute it.
+7. **Resource naming**: Azure OpenAI and AI Search names must be lowercase. Apply `toLower()` when using `uniqueString()`.
+
+8. **Sqlcmd piping**: Never pipe SQL directly to sqlcmd - always write to a temp file first, then use `-i` to execute it.
 
 ## One More Thing
 

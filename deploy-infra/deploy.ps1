@@ -154,15 +154,25 @@ Write-Host ""
 Write-Host "Deploying infrastructure (this may take 5-10 minutes)..." -ForegroundColor Cyan
 $deploymentName = "infra-$(Get-Date -Format 'yyyyMMddHHmmss')"
 
+# Capture stdout and stderr separately - warnings go to stderr and break JSON parsing if mixed
+$deployOutput = $null
+$deployError = $null
 $deployOutput = az deployment group create `
     --resource-group $ResourceGroup `
     --name $deploymentName `
     --template-file "./deploy-infra/main.bicep" `
     --parameters location=$Location baseName=$BaseName adminObjectId=$adminObjectId adminUsername=$adminUsername adminPrincipalType=$adminPrincipalType deployGenAI=$($DeployGenAI.ToString().ToLower()) `
-    --output json 2>&1
+    --output json 2>$null
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Error "Infrastructure deployment failed:`n$deployOutput"
+    # Re-run to capture the actual error
+    $deployError = az deployment group create `
+        --resource-group $ResourceGroup `
+        --name "$deploymentName-retry" `
+        --template-file "./deploy-infra/main.bicep" `
+        --parameters location=$Location baseName=$BaseName adminObjectId=$adminObjectId adminUsername=$adminUsername adminPrincipalType=$adminPrincipalType deployGenAI=$($DeployGenAI.ToString().ToLower()) `
+        --output json 2>&1
+    Write-Error "Infrastructure deployment failed:`n$deployError"
     exit 1
 }
 
