@@ -399,12 +399,13 @@ public class ExpenseService
             using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
+                var totalAmount = reader.GetDecimal(2);
                 summary.Add(new ExpenseSummary
                 {
                     StatusName = reader.GetString(0),
                     Count = reader.GetInt32(1),
-                    TotalAmountMinor = reader.GetInt32(2),
-                    TotalAmount = reader.GetDecimal(3)
+                    TotalAmountMinor = (int)(totalAmount * 100),
+                    TotalAmount = totalAmount
                 });
             }
         }
