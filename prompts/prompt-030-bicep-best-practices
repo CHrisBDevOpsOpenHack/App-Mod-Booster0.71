@@ -66,3 +66,14 @@ Look for BCP065 errors in the output - these indicate special function misuse.
 ### Version Compatibility
 
 Target Bicep CLI version 0.20.0 or later for maximum compatibility with Azure DevOps and GitHub Actions.
+
+### Deployment Script Considerations
+
+When deploying Bicep templates with `az deployment group create`, be aware of Azure Policy timing issues:
+
+- **Governance policies** may automatically create secondary deployments (diagnostic settings, alerts)
+- These policy deployments can fail transiently while retrying in the background
+- The deployment command may return a non-zero exit code even if YOUR infrastructure succeeded
+- **Solution**: Implement resilient error handling that waits briefly and searches for the successful main deployment
+
+See **prompt-027-deployment-script** for the complete implementation pattern for handling these transient policy failures.

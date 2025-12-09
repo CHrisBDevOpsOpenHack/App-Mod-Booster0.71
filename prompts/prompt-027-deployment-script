@@ -79,6 +79,38 @@ Critical implementation details:
    $deployment = $output | ConvertFrom-Json  # Fails if warnings present!
    ```
 
+8. **Handle Azure Policy timing issues**: When deploying to subscriptions with governance policies, Azure may automatically create policy-related deployments (like diagnostic settings) that can fail transiently while retrying in the background. The deployment command may return a non-zero exit code even though YOUR infrastructure deployed successfully.
+
+   Implement resilient error handling:
+   ```powershell
+   $deployOutput = az deployment group create --resource-group $ResourceGroup --template-file "./main.bicep" --parameters ... --output json 2>$null
+   
+   if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($deployOutput)) {
+       Write-Warning "Deployment command returned an error. This can happen when Azure policies are being applied."
+       Write-Host "Waiting for policy deployments to settle..." -ForegroundColor Yellow
+       Start-Sleep -Seconds 15
+       
+       # Find the main Bicep deployment (not policy-related)
+       $allDeployments = az deployment group list --resource-group $ResourceGroup --output json 2>$null | ConvertFrom-Json
+       $mainDeployment = $allDeployments | Where-Object { 
+           $_.name -notlike "PolicyDeployment_*" -and 
+           $_.name -notlike "Failure-Anomalies-*" -and
+           $_.name -notlike "*-diagnostics-*" -and
+           $_.properties.provisioningState -eq "Succeeded"
+       } | Sort-Object -Property @{Expression={[datetime]$_.properties.timestamp}; Descending=$true} | Select-Object -First 1
+       
+       if ($mainDeployment) {
+           Write-Host "✓ Found successful deployment: $($mainDeployment.name)" -ForegroundColor Green
+           $deployOutput = az deployment group show --resource-group $ResourceGroup --name $mainDeployment.name --output json 2>$null
+       } else {
+           Write-Error "Infrastructure deployment failed. Check Azure portal for details."
+           exit 1
+       }
+   }
+   ```
+
+   This handles race conditions where policy deployments fail but automatically retry while your main infrastructure deployment succeeds. The script waits briefly and then searches for the successful main deployment by filtering out policy-related deployment names.
+
 See also: prompt-016-sqlcmd-for-sql for detailed sqlcmd usage, prompt-028-github-actions-cicd for CI/CD considerations.
 
 Prerequisites: Azure CLI, go-sqlcmd (install with winget install sqlcmd), and PowerShell 7+ recommended.
