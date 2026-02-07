@@ -128,20 +128,21 @@ public class BicepValidationTests
             {
                 var line = lines[i].Trim();
                 
-                // Skip parameter definitions and comments
-                if (line.StartsWith("param ") || line.StartsWith("//") || line.StartsWith("*"))
+                // Skip comments
+                if (line.StartsWith("//") || line.StartsWith("*"))
                 {
                     continue;
                 }
 
-                // Check for utcNow() usage outside parameters
+                // Check for utcNow() usage
                 if (line.Contains("utcNow()"))
                 {
-                    // This is acceptable in default parameter values, but not elsewhere
-                    var inParameterDefault = i > 0 && lines[i - 1].Contains("param ");
+                    // This is acceptable only in parameter default values
+                    // Check if this line is a parameter declaration with utcNow()
+                    var isParameterLine = line.StartsWith("param ") && line.Contains("utcNow()");
                     
-                    inParameterDefault.Should().BeTrue(
-                        $"utcNow() should only be used in parameter default values in {Path.GetFileName(bicepFile)} line {i + 1}");
+                    isParameterLine.Should().BeTrue(
+                        $"utcNow() should only be used in parameter default values in {Path.GetFileName(bicepFile)} line {i + 1}. Found: {line}");
                 }
             }
         }

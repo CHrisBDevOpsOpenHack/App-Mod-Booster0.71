@@ -197,17 +197,17 @@ public class ExpenseServiceTests
     }
 
     [Fact]
-    public void ExpenseService_WithMissingConnectionString_ThrowsException()
+    public async Task ExpenseService_WithMissingConnectionString_FallsBackToDummyData()
     {
         // Arrange
         var emptyConfig = new ConfigurationBuilder().Build();
         var service = new ExpenseService(emptyConfig, _mockLogger.Object);
 
         // Act
-        Func<Task> act = async () => await service.GetExpensesAsync();
+        var result = await service.GetExpensesAsync();
 
         // Assert
-        act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*Connection string*not found*");
+        result.Should().NotBeNull("service should fall back to dummy data when connection string is missing");
+        result.Should().NotBeEmpty("service should return dummy expenses");
     }
 }
