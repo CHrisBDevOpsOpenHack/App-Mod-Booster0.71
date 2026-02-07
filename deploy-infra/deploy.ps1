@@ -321,11 +321,16 @@ $appSettings = @"
 ]
 "@
 
+$tempFile = [System.IO.Path]::GetTempFileName()
+$appSettings | Set-Content -Path $tempFile -Encoding UTF8
+
 az webapp config appsettings set `
     --resource-group $ResourceGroup `
     --name $webAppName `
-    --settings @- `
-    --output none 2>$null <<< $appSettings
+    --settings "@$tempFile" `
+    --output none 2>$null
+
+Remove-Item -Path $tempFile -Force -ErrorAction SilentlyContinue
 
 # Connection string (separate command)
 az webapp config connection-string set `
@@ -359,11 +364,16 @@ if ($DeployGenAI -and -not [string]::IsNullOrWhiteSpace($openAIEndpoint)) {
 ]
 "@
     
+    $tempFile = [System.IO.Path]::GetTempFileName()
+    $genAISettings | Set-Content -Path $tempFile -Encoding UTF8
+
     az webapp config appsettings set `
         --resource-group $ResourceGroup `
         --name $webAppName `
-        --settings @- `
-        --output none 2>$null <<< $genAISettings
+        --settings "@$tempFile" `
+        --output none 2>$null
+
+    Remove-Item -Path $tempFile -Force -ErrorAction SilentlyContinue
     
     Write-Host "✓ GenAI settings configured" -ForegroundColor Green
 }
