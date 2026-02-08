@@ -395,6 +395,28 @@ public class ChatService
 
 ---
 
+## Application Runtime Errors
+
+### ❌ Error: "Connection reset by peer" on Linux App Service
+
+**Cause:** `Microsoft.Data.SqlClient` version 5.1.x is incompatible with OpenSSL 3.0 used in Linux App Service containers. The TLS handshake fails during managed identity authentication, producing a `SocketException (104): Connection reset by peer`.
+
+**Bad Code:**
+```xml
+<PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.5" />  <!-- ❌ Fails on Linux -->
+```
+
+**Good Code:**
+```xml
+<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />  <!-- ✅ OpenSSL 3.0 compatible -->
+```
+
+**Where This Applies:** `src/ExpenseManagement/ExpenseManagement.csproj`
+
+**Reference:** `.github/agents/dotnet-agent.md` (NuGet packages section)
+
+---
+
 ## CI/CD Errors
 
 ### ❌ Error: "AZURE_CLIENT_ID environment variable not found"
@@ -477,6 +499,7 @@ Before completing any phase, verify these patterns:
 - [ ] Column names in C# match stored procedure aliases exactly
 - [ ] ChatService has `IsConfigured` property
 - [ ] Chat page shows graceful message when GenAI not configured
+- [ ] `Microsoft.Data.SqlClient` version is **5.2.2+** (not 5.1.x)
 
 ### ✅ Database
 - [ ] Managed identity user created with SID (not FROM EXTERNAL PROVIDER)

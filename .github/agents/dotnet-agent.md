@@ -193,12 +193,14 @@ When the AI returns lists:
 
 ### 10. NuGet Packages Required
 ```xml
-<PackageReference Include="Microsoft.Data.SqlClient" />
-<PackageReference Include="Azure.AI.OpenAI" />
-<PackageReference Include="Azure.Identity" />
-<PackageReference Include="Swashbuckle.AspNetCore" />
-<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
+<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+<PackageReference Include="Azure.AI.OpenAI" Version="2.0.0" />
+<PackageReference Include="Azure.Identity" Version="1.11.4" />
+<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
 ```
+
+> **Important:** `Microsoft.Data.SqlClient` must be **5.2.2 or later**. Version 5.1.x has a TLS compatibility issue with Linux App Service (OpenSSL 3.0) that causes "Connection reset by peer" during managed identity authentication.
 
 ## Inputs from Other Agents
 
