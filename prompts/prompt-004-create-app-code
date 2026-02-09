@@ -44,4 +44,30 @@ ReviewerName = reader.IsDBNull(reader.GetOrdinal("ReviewedByName")) ? null : rea
 
 Getting these names wrong causes "Unable to cast object" or "column not found" runtime errors.
 
+## Health Check Endpoint
+
+The application MUST include a `/health` endpoint for App Service health probes. This endpoint must NOT depend on the database — it should return HTTP 200 immediately.
+
+In `Program.cs`:
+```csharp
+// Add health checks (no DB dependency)
+builder.Services.AddHealthChecks();
+
+// ... later, after app.UseAuthorization() ...
+
+app.MapHealthChecks("/health");
+```
+
+Without this, App Service will health-check the root URL (`/`) which requires database access. If the database is slow or unavailable during deployment, the app fails to start within 10 minutes.
+
+## NuGet Package Versions
+
+Use these specific versions to avoid runtime issues on Linux App Service:
+
+```xml
+<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+```
+
+**Important:** Version 5.1.x fails on Linux with "Connection reset by peer" due to OpenSSL 3.0 TLS incompatibility.
+
 

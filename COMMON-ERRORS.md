@@ -417,6 +417,40 @@ public class ChatService
 
 ---
 
+### ❌ Error: "Site failed to start" / "worker process failed to start within allotted time"
+
+**Cause:** App Service performs health checks during deployment. If the default check (which hits the root URL `/`) depends on a database that's slow or unavailable, the app appears unhealthy and fails to start within 10 minutes.
+
+**Bad Pattern:**
+- No health check endpoint configured
+- Index page makes synchronous DB calls on startup
+- App Service uses root URL for health probes
+
+**Good Pattern:**
+1. Add a simple `/health` endpoint with no DB dependency:
+```csharp
+// Program.cs
+builder.Services.AddHealthChecks();
+// ...
+app.MapHealthChecks("/health");
+```
+
+2. Configure App Service to use it (Bicep):
+```bicep
+siteConfig: {
+  healthCheckPath: '/health'
+  // ... other settings
+}
+```
+
+3. Ensure pages that need DB have try/catch with fallback data
+
+**Where This Applies:** `src/ExpenseManagement/Program.cs`, `deploy-infra/modules/app-service.bicep`
+
+**Reference:** `.github/copilot-instructions.md` (health check rule)
+
+---
+
 ## CI/CD Errors
 
 ### ❌ Error: "AZURE_CLIENT_ID environment variable not found"
@@ -493,9 +527,11 @@ Before completing any phase, verify these patterns:
 - [ ] `newGuid()` only in parameter defaults
 - [ ] No circular dependencies in diagnostic settings
 - [ ] All Azure resource names use `toLower()`
+- [ ] App Service has `healthCheckPath: '/health'` in siteConfig
 
 ### ✅ Application Code
 - [ ] `Program.cs` has `public partial class Program { }` at the bottom
+- [ ] `Program.cs` has `/health` endpoint via `MapHealthChecks("/health")`
 - [ ] Column names in C# match stored procedure aliases exactly
 - [ ] ChatService has `IsConfigured` property
 - [ ] Chat page shows graceful message when GenAI not configured

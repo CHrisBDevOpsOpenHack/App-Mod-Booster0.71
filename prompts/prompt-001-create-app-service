@@ -7,3 +7,16 @@ All Azure resource names in the Bicep files must be lowercase - never use upperc
 Save this as `deploy-infra/modules/app-service.bicep` and make sure the main template at `deploy-infra/main.bicep` can call it as a module.
 
 This prompt is for infrastructure only - we're creating the App Service resource itself, not deploying any application code to it.
+
+## Health Check Configuration
+
+The App Service MUST configure a health check path in siteConfig:
+
+```bicep
+siteConfig: {
+  healthCheckPath: '/health'
+  // ... other settings
+}
+```
+
+This tells App Service to probe `/health` instead of the root URL during deployment. The application provides a simple `/health` endpoint that returns HTTP 200 without database dependencies, ensuring the app can start successfully even if the database connection is slow.
